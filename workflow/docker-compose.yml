@@ -99,8 +99,6 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-    ports:
-      - 1337:5433
     restart: always
 
   redis:
@@ -286,5 +284,23 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  self-database:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main_storage
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - self-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "main_storage", "-U", "admin" ]
+      interval: 10s
+      retries: 5
+    ports:
+      - 5433:5432
+
 volumes:
   postgres-db-volume:
+  self-db-volume:
