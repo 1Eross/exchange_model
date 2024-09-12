@@ -291,7 +291,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: main_storage
     restart: always
-    shm_size: 128mb
+    shm_size: 256mb
     volumes:
       - self-db-volume:/var/lib/postgresql/data
     healthcheck:

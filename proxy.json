@@ -1,0 +1,42 @@
+{
+  "217.29.62.212:13778": {
+    "url": {
+      "http": "http://H2cL6Z:B8uCzy@217.29.62.212:13778"
+    },
+    "login": "H2cL6Z",
+    "password": "B8uCzy",
+    "ipv6": "2a06:c006:19b2:d35d:2eec:ff6b:97a4:226e"
+  },
+  "217.29.62.212:13777": {
+    "url": {
+      "http": "http://H2cL6Z:B8uCzy@217.29.62.212:13777"
+    },
+    "login": "H2cL6Z",
+    "password": "B8uCzy",
+    "ipv6": "2a06:c006:19b2:d35d:2eec:ff6b:97a4:226e"
+  },
+  "217.29.62.214:13710": {
+    "url": {
+      "http": "http://H2cL6Z:B8uCzy@217.29.62.214:13710"
+    },
+    "login": "H2cL6Z",
+    "password": "B8uCzy",
+    "ipv6": "2a06:c006:9216:cefc:7ae9:b8ce:f43e:57e1"
+  },
+  "217.29.62.214:13709": {
+    "url": {
+      "http": "http://H2cL6Z:B8uCzy@217.29.62.214:13709"
+    },
+    "login": "H2cL6Z",
+    "password": "B8uCzy",
+    "ipv6": "2a06:c006:19b2:d35d:2eec:ff6b:97a4:226e"
+  },
+  "217.29.62.214:13708": {
+    "url": {
+      "http": "http://H2cL6Z:B8uCzy@217.29.62.214:13708"
+    },
+    "login": "H2cL6Z",
+    "password": "B8uCzy",
+    "ipv6": "2a06:c006:19b2:d35d:2eec:ff6b:97a4:226e"
+  }
+}
