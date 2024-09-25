@@ -299,7 +299,7 @@ services:
       interval: 10s
       retries: 5
     ports:
-      - 5433:5432
+      - 5434:5432
 
 volumes:
   postgres-db-volume:

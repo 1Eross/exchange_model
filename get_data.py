@@ -4,7 +4,6 @@ from sqlalchemy.sql.sqltypes import TIMESTAMP, CHAR, REAL, INT, TEXT
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session
 from sqlalchemy.orm import mapped_column
 import requests
-import json
 
 
 def strip(x: str):
@@ -141,8 +140,8 @@ def upload_data(api_keys: list[str]):
 
     api_iter = iter(api_keys)
     api_key = next(api_iter)
-    proxy_iter = iter(proxies.keys())
-    proxy_key = next(proxy_iter)
+    # proxy_iter = iter(proxies.keys())
+    # proxy_key = next(proxy_iter)
 
     # Начать перебор по символам
     for symb in comps:
@@ -151,24 +150,26 @@ def upload_data(api_keys: list[str]):
         last_data = find_last_timestamp(session, symb)
         if last_data:
             print(f"Last timestamp have found: {last_data}")
-            date_list = dates[dates.index(last_data):]
+            date_list = dates[dates.index(last_data) + 1:]
         else:
             print(f"No last timestamp in db")
             date_list = dates
-        print(f'Date list have formed')
+        print(f'Date list have formed: {date_list}')
         # Начинаем вытягивать данные
-        for date in date_list:
+        for date_index in range(len(date_list)):
             while True:
                 try:
-                    api_url = get_data_interday_url(symb, date, api_key)
-                    response = requests.get(api_url, proxies[proxy_key]['url'])
+                    api_url = get_data_interday_url(symb, date_list[date_index], api_key)
+                    response = requests.get(api_url)
 
                     if not validate_response_structure(response.json(), expected_ohlc_structure):
                         raise ValueError("Структура данных ответа не совпадает с ожидаемой.")
 
                     print("Данные корректны, продолжаем обработку")
                     load_data_to_database(response.json())
-                    print("Данные успешно загружены, переходим к следующему ключу")
+                    print(f"Данные успешно загружены. Symb: {symb}, date:{date_list[date_index]}")
+                    print(f"Metadata have been saved with last timestamp: {date_list[date_index]}")
+                    save_last_timestamp(session, symb, timestamp=date_list[date_index])
                     break
 
                 except ValueError as ve:
@@ -178,15 +179,15 @@ def upload_data(api_keys: list[str]):
                         print("Превышен дневной лимит")
                         try:
                             api_key = next(api_iter)
-                            proxy_key = next(proxy_iter)
+                            # proxy_key = next(proxy_iter)
                             print(f"Переходим к следующему ключу {api_key}")
                             continue
 
                         except StopIteration as e:
-                            print("Ключи и proxy закончились.")
+                            print("Ключи закончились.")
                             if last_data is not None:
-                                print(f"Metadata have been saved with last timestamp: {date}")
-                                save_last_timestamp(session, symb, timestamp=date)
+                                print(f"Metadata have been saved with last timestamp: {date_list[date_index-1]}")
+                                save_last_timestamp(session, symb, timestamp=date_list[date_index-1])
                             else:
                                 print(f"Metadata have not been saved. Nothing to save")
                         return
@@ -194,8 +195,8 @@ def upload_data(api_keys: list[str]):
                     else:
                         print("Другая проблема cо структурой данных ответа")
                         if last_data is not None:
-                            print(f"Metadata have been saved with last timestamp: {date}")
-                            save_last_timestamp(session, symb, timestamp=date)
+                            print(f"Metadata have been saved with last timestamp: {date_list[date_index-1]}")
+                            save_last_timestamp(session, symb, timestamp=date_list[date_index-1])
                         else:
                             print(f"Metadata have not been saved. Nothing to save")
                         return
@@ -203,8 +204,8 @@ def upload_data(api_keys: list[str]):
                 except Exception as e:
                     print("Возникла ошибка", e)
                     if last_data is not None:
-                        print(f"Metadata have been saved with last timestamp: {date}")
-                        save_last_timestamp(session, symb, timestamp=date)
+                        print(f"Metadata have been saved with last timestamp: {date_list[date_index-1]}")
+                        save_last_timestamp(session, symb, timestamp=date_list[date_index-1])
                     else:
                         print(f"Metadata have not been saved. Nothing to save")
                     return
@@ -216,14 +217,14 @@ if __name__ == '__main__':
 
     api_main_domain = 'https://www.alphavantage.co/query?'
 
-    engine = create_engine("postgresql+psycopg2://admin:admin@localhost:5433/main_storage", pool_pre_ping=True)
+    engine = create_engine("postgresql+psycopg2://admin:admin@localhost:5434/main_storage", pool_pre_ping=True)
     Base.metadata.create_all(engine)
 
-    comps = ['TSLA', 'APPL', 'NVDA']
-    dates = [f'{year}-{month}' if month > 10 else f'{year}-0{month}'
+    comps = ['TSLA', 'AAPL', 'NVDA']
+    dates = [f'{year}-{month}' if month >= 10 else f'{year}-0{month}'
              for year in range(2021, 2024) for month in range(1, 13)]
 
-    with open("./proxy.json", 'r') as f:
-        proxies = json.loads(f.read())
+    # with open("./proxy.json", 'r') as f:
+    #     proxies = json.loads(f.read())
 
     upload_data(api_keys)
